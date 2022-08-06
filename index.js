@@ -122,6 +122,7 @@ client.on("raw", async (d) => {
                 .setDescription(`${tag} has deleted their message in <#${msg.d.channel_id}> containing:\n${content}`)
                 .setColor("YELLOW");
                 channel.send({embeds: [embed]});
+                if(messages.length >= 100) messages.splice(0,messages.length);
             }
         });
         return;
