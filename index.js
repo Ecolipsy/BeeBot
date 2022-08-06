@@ -113,13 +113,13 @@ client.on("raw", async (d) => {
     if(d.t === "MESSAGE_DELETE"){
         messages.forEach(async msg => {
             if(d.d.id === msg.d.id){
-                var tag = msg.d.author.username + "#" + msg.author.d.discriminator;
+                var tag = msg.d.author.username + "#" + msg.d.author.discriminator;
                 var content = msg.d.content;
                 await client.channels.fetch(logsId);
                 const channel = client.channels.cache.get(logsId);
                 var embed = new MessageEmbed()
                 .setTitle("Message Deleted")
-                .setDescription(`${tag} has deleted their message containing:\n${content}`)
+                .setDescription(`${tag} has deleted their message in <#${msg.d.channel_id}> containing:\n${content}`)
                 .setColor("YELLOW");
                 channel.send({embeds: [embed]});
             }
