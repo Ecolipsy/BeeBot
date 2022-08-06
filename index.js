@@ -46,6 +46,10 @@ client.on("messageCreate", async (msg) => {
         var member = server.members.get(msg.author.id);
         member.addRole("1005166680013557831");
         msg.delete();
+    } else if(cmdName === "beemovie"){
+        const bMovie = fs.readFileSync("beemovie.txt").toString().split("\n");
+        const line = bMovie[Math.floor(Math.random()*bMovie.length)];
+        msg.channel.createMessage(line);
     }
 });
 
