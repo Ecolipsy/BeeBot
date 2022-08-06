@@ -102,7 +102,7 @@ client.on("guildMemberUpdate", async (oldMember, newMember) => {
     }
 });
 
-/*
+
 const messages = [];
 client.on("raw", async (d) => {
     if(d.t === "MESSAGE_CREATE"){
@@ -111,12 +111,25 @@ client.on("raw", async (d) => {
         return;
     }
     if(d.t === "MESSAGE_DELETE"){
-
+        messages.forEach(async msg => {
+            if(d.d.id === msg.d.id){
+                var tag = msg.d.author.username + "#" + msg.author.d.discriminator;
+                var content = msg.d.content;
+                await client.channels.fetch(logsId);
+                const channel = client.channels.cache.get(logsId);
+                var embed = new MessageEmbed()
+                .setTitle("Message Deleted")
+                .setDescription(`${tag} has deleted their message containing:\n${content}`)
+                .setColor("YELLOW");
+                channel.send({embeds: [embed]});
+            }
+        });
         return;
     }
 });
-*/
 
+
+/*
 client.on("messageDelete", (msg) => {
     console.log("Message deleted");
     const channel = client.channels.cache.get(logsId);
@@ -125,7 +138,7 @@ client.on("messageDelete", (msg) => {
     .setDescription(`${msg.d.author.username}#${msg.d.author.discriminator} has deleted their message containing:\n${msg.d.content}`)
     .setColor("YELLOW");
     channel.send({embeds: [embed]});
-});
+});*/
 
 //Login to the API
 client.login(fs.readFileSync("token.txt", {encoding: "utf-8"}));
