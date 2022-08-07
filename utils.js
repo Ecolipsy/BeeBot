@@ -1,5 +1,7 @@
 const https = require("https");
 
+const DISCORD_EPOCH = 1420070400000;
+
 module.exports = {
     getPing(ws){
         return new Promise((resolve, reject) => {
@@ -28,5 +30,8 @@ module.exports = {
                 res.on("error", reject);
             }).end();
         });
+    },
+    idToDate(snowflake) {
+        return new Date(snowflake / 4194304 + DISCORD_EPOCH);
     }
 }

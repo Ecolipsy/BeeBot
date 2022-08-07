@@ -86,6 +86,67 @@ commands.push({name: "help", description: "Show a list of commands and what they
     msg.channel.createMessage({embed}).catch(console.log);
 }});
 
+commands.push({name: "info", description: "Shows info about you or someone else.", run(msg){
+    var userId = msg.author.id;
+    if(msg.mentions.length >= 1) userId = msg.mentions[0].id;
+    const user = client.users.get(userId);
+    const allUserInfo = JSON.parse(fs.readFileSync("userinfo.json"));
+    const userInfo = allUserInfo[userId];
+    const createdDate = utils.idToDate(userId);
+    const createdAt = `${createdDate.toLocaleDateString()} at ${createdDate.toLocaleTimeString()}`
+    var embed = {
+        title: "User Info",
+        description: `Here is all I know about ${(userId === msg.author.id) ? "you" : "them"}.`,
+        color: embedColor,
+        thumbnail: {url: user.avatarURL},
+        fields: [
+            {
+                name: "Tag",
+                value: [user.username, user.discriminator].join("#")
+            },
+            {
+                name: "ID",
+                value: userId
+            },
+            {
+                name: "Created At",
+                value: createdAt
+            },
+            {
+                name: "Messages",
+                value: userInfo.messages
+            },
+            {
+                name: "Level",
+                value: (userInfo.messages/150).toFixed(0)
+            }
+        ]
+    }
+    msg.channel.createMessage({embed}).catch(console.log);
+}});
+
+commands.push({name: "eval", description: "A command that evaluates JavaScript code (only for BeeBot dev)", run(msg){
+    const msgSplit = msg.content.split(" ");
+    msgSplit.shift();
+    const args = msgSplit.join(" ");
+    try{
+        const res = eval(args);
+        msg.channel.createMessage("```js\n" + new String(res).valueOf() + "```").catch(e => msg.channel.createMessage("```js\n" + e.stack + "```"))
+    } catch(e){
+        console.log(e);
+        msg.channel.createMessage("```js\n" + e.stack + "```").catch(e => msg.channel.createMessage("```js\n" + e.stack + "```"));
+    }
+}});
+
+commands.push({name: "lines", description: "Sends the line count of index.js.", run(msg){
+    const index = fs.readFileSync("index.js").toString();
+    msg.channel.createMessage(`My index.js file is currently \`${index.split("\n").length}\` lines.`);
+}});
+
+commands.push({name: "wasp", description: "Run to find out.", run(msg){
+    msg.channel.createMessage("Wasps are nasty mean creatures! >:(");
+}});
+
 //Let's hope eris fixed their ready event
 client.on("ready", async() => {
     console.log("Ready!");
@@ -93,7 +154,7 @@ client.on("ready", async() => {
         memberAvatars[member.id] = {buffer: await utils.getAvatarBuffer(member.avatarURL), url: member.avatarURL};
         const userinfoglobal = JSON.parse(fs.readFileSync("userinfo.json".toString()));
         const userinfo = {messages: 0}
-        userinfoglobal[member.id] = userinfo;
+        if(!userinfoglobal[member.id]) userinfoglobal[member.id] = userinfo;
         fs.writeFileSync("userinfo.json", JSON.stringify(userinfoglobal));
     });
 });
@@ -102,6 +163,12 @@ client.on("ready", async() => {
 client.on("messageCreate", async (msg) => {
     const { prefix } = utils.getConfig();
     const isCommand = msg.content.toLowerCase().startsWith(prefix);
+    if(msg.guildID === guildId){
+        const globalUserInfo = JSON.parse(fs.readFileSync("userinfo.json").toString());
+        const userInfo = globalUserInfo[msg.author.id];
+        userInfo.messages++;
+        fs.writeFileSync("userinfo.json", JSON.stringify(globalUserInfo));
+    }
     if(!isCommand) return;
     const cmdName = msg.content.split(" ")[0].replace(prefix, "");
     var found = false;
@@ -179,7 +246,7 @@ client.on("messageUpdate", (newM, oldM) => {
         color: embedColor,
         thumbnail: {url: newM.author.avatarURL}
     }
-    channel.createMessage({embed});
+    channel.createMessage({embed}).catch(console.log);
 });
 
 //Member add
@@ -194,6 +261,10 @@ client.on("guildMemberAdd", async (guild, member) => {
         thumbnail: {url: member.avatarURL}
     }
     channel.createMessage({embed});
+    const userInfo = {messages: 0}
+    const globalUserInfo = JSON.parse(fs.readFileSync("userinfo.json").toString());
+    globalUserInfo[member.id] = userInfo;
+    fs.writeFileSync("userinfo", JSON.stringify(globalUserInfo));
 });
 
 //Member leave
