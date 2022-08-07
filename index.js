@@ -22,6 +22,7 @@ class Command{
     }
 }
 
+//Commands
 commands.push({name: "ping", description: "Shows bot latency", async run(msg){
     const ws = client.shards.get(0).ws;
     const ping = await utils.getPing(ws);
@@ -97,7 +98,7 @@ client.on("ready", async() => {
     });
 });
 
-//Commands
+//Command handler
 client.on("messageCreate", async (msg) => {
     const { prefix } = utils.getConfig();
     const isCommand = msg.content.toLowerCase().startsWith(prefix);
